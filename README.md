@@ -23,3 +23,11 @@ To create the single javascript file: `bun run bundle`. The file will be localed
 
 - [mjs without extension](https://2ality.com/2022/07/nodejs-esm-shell-scripts.html#unix%3A-arbitrary-filename-extension-via-a-shell-prolog)
 - [original gfa](https://gist.github.com/kwo/bbd251ab1d3392ad95dc889948177a78)
+
+## TODO
+
+- check that origin is available before fetching, pulling
+- state status per line in another color and overwrite when done
+- work when curdir is repo
+- run fetch and dirty in parallel
+- rwrite as pure javascript, no typescript, no bun

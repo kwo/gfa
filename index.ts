@@ -7,7 +7,7 @@ const execPromise = promisify(exec);
 const lines: string[] = [];
 let linesUpdatedOnce: boolean = false;
 
-function updateLines() {
+const updateLines = () => {
   if (linesUpdatedOnce) {
     console.log(ansi.cursor.previousLine(lines.length + 1));
   }
@@ -15,24 +15,24 @@ function updateLines() {
   for (const line of lines) {
     console.log(`${ansi.erase.inLine(0)}${line}`);
   }
-}
+};
 
-function updateLine(lineNumber: number, text: string) {
+const updateLine = (lineNumber: number, text: string) => {
   lines[lineNumber] = text;
   updateLines();
-}
+};
 
-function appendToLine(lineNumber: number, addedText: string) {
+const appendToLine = (lineNumber: number, addedText: string) => {
   const text = `${lines[lineNumber]}${addedText}`;
   updateLine(lineNumber, text);
-}
+};
 
 // set the text of the last line
-function updateStatus(text: string) {
+const updateStatus = (text: string) => {
   updateLine(lines.length - 1, text);
-}
+};
 
-async function process(lineNumber: number, dir: string) {
+const process = async (lineNumber: number, dir: string) => {
   // branch
   try {
     const { stdout } = await execPromise('git branch --show-current', { cwd: dir });
@@ -74,9 +74,9 @@ async function process(lineNumber: number, dir: string) {
     appendToLine(lineNumber, ` ${ansi.style.red}${x}${ansi.style.reset}`);
     return;
   }
-}
+};
 
-async function main(dir: string) {
+const main = async (dir: string) => {
   const dirents = await fs.readdir(dir, { withFileTypes: true });
   const subdirs = dirents.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
 
@@ -91,7 +91,7 @@ async function main(dir: string) {
     promises.push(process(i, subdirName));
   });
   return Promise.all(promises);
-}
+};
 
 main('.')
   .then(() => updateStatus('done'))
