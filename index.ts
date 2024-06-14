@@ -9,21 +9,20 @@ let linesUpdatedOnce: boolean = false;
 
 function updateLines() {
   if (linesUpdatedOnce) {
-    console.log(ansi.cursor.previousLine(lines.length+1));
+    console.log(ansi.cursor.previousLine(lines.length + 1));
   }
   linesUpdatedOnce = true;
-  // console.log(ansi.erase.lines(lines.length));
   console.log(lines.join('\n'));
 }
 
-function updateLine(lineNumber: number, newText: string) {
-  lines[lineNumber] = newText;
+function updateLine(lineNumber: number, text: string) {
+  lines[lineNumber] = text;
   updateLines();
 }
 
-function appendToLine(lineNumber: number, extraText: string) {
-  const newText = `${lines[lineNumber]} ${extraText}`;
-  updateLine(lineNumber, newText);
+function appendToLine(lineNumber: number, addedText: string) {
+  const text = `${lines[lineNumber]}${addedText}`;
+  updateLine(lineNumber, text);
 }
 
 async function process(lineNumber: number, dir: string) {
@@ -40,14 +39,16 @@ async function process(lineNumber: number, dir: string) {
 
 async function main(dir: string) {
   const dirents = await fs.readdir(dir, { withFileTypes: true });
-  dirents
-    .filter(dirent => dirent.isDirectory())
-    .map(dirent => dirent.name)
-    .forEach(async (subdirName, i) => {
-      lines.push('');
-      updateLine(i, `${ansi.style.cyan}${subdirName}${ansi.style.reset}`);
-      await process(i, subdirName);
-    });
+  const subdirs = dirents.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+
+  subdirs.forEach((subdirName, i) => {
+    lines.push('');
+    updateLine(i, `${ansi.style.cyan}${subdirName}${ansi.style.reset}`);
+  });
+
+  subdirs.forEach(async (subdirName, i) => {
+    await process(i, subdirName);
+  });
 }
 
 main('.')

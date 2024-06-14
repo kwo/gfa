@@ -6,6 +6,7 @@
     "lint": "bun prettier . --check",
     "lint:fix": "bun prettier . --write",
     "dev": "bun run ./index.ts",
+    "test": "bun run ./test.ts",
     "clean": "rm -rf ./build && rm -f ./gfa",
     "bundle": "bun build ./index.ts --outdir ./build --target node --minify",
     "build": "bun run bundle && bun run gfa-shebang && bun run gfa-executable",
