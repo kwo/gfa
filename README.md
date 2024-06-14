@@ -28,6 +28,5 @@ To create the single javascript file: `bun run bundle`. The file will be localed
 
 - state status per line in another color and overwrite when done
 - check that origin is available before fetching, pulling
-- work when curdir is repo
 - rwrite as pure javascript, no typescript, no bun
 - run fetch and dirty in parallel

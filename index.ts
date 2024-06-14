@@ -78,7 +78,11 @@ const process = async (lineNumber: number, dir: string) => {
 
 const main = async (dir: string) => {
   const dirents = await fs.readdir(dir, { withFileTypes: true });
-  const subdirs = dirents.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+  let subdirs = dirents.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+  // check if current directory is a git repo
+  if (subdirs.includes('.git')) {
+    subdirs = ['.'];
+  }
 
   // prepare lines
   subdirs.forEach(subdirName => {
