@@ -2,8 +2,8 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import ansi from 'ansi-escape-sequences';
-
 const execPromise = promisify(exec);
+
 const lines: string[] = [];
 let linesUpdatedOnce: boolean = false;
 
@@ -80,11 +80,13 @@ const main = async (dir: string) => {
   const dirents = await fs.readdir(dir, { withFileTypes: true });
   const subdirs = dirents.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
 
+  // prepare lines
   subdirs.forEach(subdirName => {
     lines.push(`${ansi.style.cyan}${subdirName}${ansi.style.reset}`);
   });
   lines.push(''); // last line is status
 
+  // launch processes
   updateStatus('working...');
   const promises: Promise<void>[] = [];
   subdirs.forEach((subdirName, i) => {
