@@ -2,6 +2,11 @@
   "name": "gfa",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "bundle": "bun build ./index.ts --outdir ./build --target node --minify",
+    "clean": "rm -rf ./build",
+    "dev": "bun run ./index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
