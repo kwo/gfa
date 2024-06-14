@@ -3,12 +3,18 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
+    "lint": "bun prettier . --check",
+    "lint:fix": "bun prettier . --write",
+    "dev": "bun run ./index.ts",
+    "clean": "rm -rf ./build && rm -f ./gfa",
     "bundle": "bun build ./index.ts --outdir ./build --target node --minify",
-    "clean": "rm -rf ./build",
-    "dev": "bun run ./index.ts"
+    "build": "bun run bundle && bun run gfa-shebang && bun run gfa-executable",
+    "gfa-shebang": "bun -e \"const fs = require('fs'); fs.writeFileSync('./gfa', '#!/usr/bin/env node\n' + fs.readFileSync('./build/index.js', 'utf-8'));\"",
+    "gfa-executable": "bun -e \"const fs = require('fs'); fs.chmodSync('./gfa', 0o755);\""
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prettier": "3.3.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

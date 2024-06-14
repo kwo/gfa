@@ -4,8 +4,8 @@ Also known as Git Fetch All, gfa, fetches and pulls all git repositories that ar
 
 ## Dependencies
 
-* Node v18+
-* Git
+- Node v18+
+- Git
 
 ## Usage
 
