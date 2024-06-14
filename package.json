@@ -1,0 +1,14 @@
+{
+  "name": "gfa",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ansi-escape-sequences": "^6.2.2"
+  }
+}
