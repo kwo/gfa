@@ -19,18 +19,18 @@ export class Lines {
     }
   }
 
+  add(text?: string): Line {
+    const line = new Line(text, () => this.update());
+    this.lines.push(line);
+    return line;
+  }
+
   get last(): Line {
     return this.line(this.lines.length - 1);
   }
 
   line(index: number): Line {
     return this.lines[index];
-  }
-
-  add(text?: string): Line {
-    const line = new Line(text, () => this.update());
-    this.lines.push(line);
-    return line;
   }
 }
 
@@ -40,6 +40,9 @@ export class Line {
   }
   static green(text: any): string {
     return `${ansi.style.green}${text}${ansi.style.reset}`;
+  }
+  static cyan(text: any): string {
+    return `${ansi.style.cyan}${text}${ansi.style.reset}`;
   }
   static word(text: any): string {
     return ` ${text}`;

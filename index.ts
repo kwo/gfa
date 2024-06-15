@@ -1,7 +1,6 @@
 import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
-import ansi from 'ansi-escape-sequences';
 const execPromise = promisify(exec);
 
 import { Line, Lines } from './lines';
@@ -9,7 +8,7 @@ import { Line, Lines } from './lines';
 const lines: Lines = new Lines();
 
 const process = async (line: Line, dir: string) => {
-  line.text = `${ansi.style.cyan}${dir}${ansi.style.reset}`;
+  line.text = Line.cyan(dir);
 
   // branch
   line.mark(Line.word(Line.green('loading branch...')));
