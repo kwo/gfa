@@ -1,42 +1,32 @@
-import ansi from 'ansi-escape-sequences';
+import { Line } from './lines';
 
-const lines: string[] = [];
-let linesUpdatedOnce: boolean = false;
+const line = new Line();
+line.append('hello');
+console.log(`line: *${line.text}*`);
 
-function updateLines() {
-  if (linesUpdatedOnce) {
-    console.log(ansi.cursor.previousLine(lines.length + 1));
-  }
-  linesUpdatedOnce = true;
-  console.log(lines.join('\n'));
-}
+line.mark();
 
-function updateLine(lineNumber: number, newText: string) {
-  lines[lineNumber] = newText;
-  updateLines();
-}
+line.append('.');
+console.log(`line: *${line.text}*`);
+line.append('.');
+console.log(`line: *${line.text}*`);
+line.append('.');
+console.log(`line: *${line.text}*`);
 
-function appendToLine(lineNumber: number, extraText: string) {
-  const newText = `${lines[lineNumber]} ${extraText}`;
-  updateLine(lineNumber, newText);
-}
+line.clear();
+console.log(`line: *${line.text}*`);
 
-for (let i = 0; i < 10; i++) {
-  lines.push(`Line ${i}`);
-}
+line.append(Line.word('world'));
+console.log(`line: *${line.text}*`);
 
-setInterval(() => {
-  appendToLine(0, '*');
-  appendToLine(2, '*');
-  appendToLine(4, '*');
-  appendToLine(6, '*');
-  appendToLine(8, '*');
+line.mark();
 
-  appendToLine(1, '+');
-  appendToLine(3, '+');
-  appendToLine(5, '+');
-  appendToLine(7, '+');
-  appendToLine(9, '+');
-}, 1000);
+line.append('.');
+console.log(`line: *${line.text}*`);
+line.append('.');
+console.log(`line: *${line.text}*`);
+line.append('.');
+console.log(`line: *${line.text}*`);
 
-await new Promise(function () {});
+line.clear();
+console.log(`line: *${line.text}*`);

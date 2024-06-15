@@ -26,7 +26,8 @@ To create the single javascript file: `bun run bundle`. The file will be localed
 
 ## TODO
 
-- state status per line in another color and overwrite when done
 - check that origin is available before fetching, pulling
+- skip pull, clean if fetch reveals no changes
 - rwrite as pure javascript, no typescript, no bun
-- run fetch and dirty in parallel
+- eslint
+- tests

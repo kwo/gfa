@@ -4,74 +4,56 @@ import { promisify } from 'util';
 import ansi from 'ansi-escape-sequences';
 const execPromise = promisify(exec);
 
-const lines: string[] = [];
-let linesUpdatedOnce: boolean = false;
+import { Line, Lines } from './lines';
 
-const updateLines = () => {
-  if (linesUpdatedOnce) {
-    console.log(ansi.cursor.previousLine(lines.length + 1));
-  }
-  linesUpdatedOnce = true;
-  for (const line of lines) {
-    console.log(`${ansi.erase.inLine(0)}${line}`);
-  }
-};
+const lines: Lines = new Lines();
 
-const updateLine = (lineNumber: number, text: string) => {
-  lines[lineNumber] = text;
-  updateLines();
-};
+const process = async (line: Line, dir: string) => {
+  line.text = `${ansi.style.cyan}${dir}${ansi.style.reset}`;
 
-const appendToLine = (lineNumber: number, addedText: string) => {
-  const text = `${lines[lineNumber]}${addedText}`;
-  updateLine(lineNumber, text);
-};
-
-// set the text of the last line
-const updateStatus = (text: string) => {
-  updateLine(lines.length - 1, text);
-};
-
-const process = async (lineNumber: number, dir: string) => {
   // branch
+  line.mark(Line.word(Line.green('loading branch...')));
   try {
     const { stdout } = await execPromise('git branch --show-current', { cwd: dir });
     const branch = stdout.trim();
-    appendToLine(lineNumber, ` ${branch}`);
+    line.clear(Line.word(branch));
   } catch (x) {
-    appendToLine(lineNumber, ` ${ansi.style.red}${x}${ansi.style.reset}`);
+    line.append(Line.word(Line.red(x)));
     return;
   }
 
   // fetch
+  line.mark(Line.word(Line.green('fetching...')));
   try {
     await execPromise('git fetch --all --tags --prune --prune-tags --quiet', { cwd: dir });
-    appendToLine(lineNumber, ' fetched');
+    line.clear(Line.word('fetched'));
   } catch (x) {
-    appendToLine(lineNumber, ` ${ansi.style.red}${x}${ansi.style.reset}`);
+    line.append(Line.word(Line.red(x)));
     return;
   }
 
   // clean
+  line.mark(Line.word(Line.green('getting status...')));
   try {
     const { stdout } = await execPromise('git status --porcelain', { cwd: dir });
     if (stdout.trim().length === 0) {
-      appendToLine(lineNumber, ' clean');
+      line.clear(Line.word('clean'));
     } else {
-      appendToLine(lineNumber, ' dirty');
+      line.clear(Line.word('dirty'));
       return;
     }
   } catch (x) {
-    appendToLine(lineNumber, ` ${ansi.style.red}${x}${ansi.style.reset}`);
+    line.append(Line.word(Line.red(x)));
     return;
   }
 
   // pull
+  line.mark(Line.word(Line.green('pulling...')));
   try {
     await execPromise('git pull', { cwd: dir });
-    appendToLine(lineNumber, ' pulled');
+    line.clear(Line.word('pulled'));
   } catch (x) {
-    appendToLine(lineNumber, ` ${ansi.style.red}${x}${ansi.style.reset}`);
+    line.append(Line.word(Line.red(x)));
     return;
   }
 };
@@ -85,20 +67,18 @@ const main = async (dir: string) => {
   }
 
   // prepare lines
-  subdirs.forEach(subdirName => {
-    lines.push(`${ansi.style.cyan}${subdirName}${ansi.style.reset}`);
-  });
-  lines.push(''); // last line is status
+  subdirs.forEach(() => lines.add());
+  lines.add(); // last line is status
 
   // launch processes
-  updateStatus('working...');
+  lines.last.text = 'working...';
   const promises: Promise<void>[] = [];
   subdirs.forEach((subdirName, i) => {
-    promises.push(process(i, subdirName));
+    promises.push(process(lines.line(i), subdirName));
   });
   return Promise.all(promises);
 };
 
 main('.')
-  .then(() => updateStatus('done'))
-  .catch(err => updateStatus(err));
+  .then(() => (lines.last.text = 'done'))
+  .catch(err => (lines.last.text = Line.red(err)));
