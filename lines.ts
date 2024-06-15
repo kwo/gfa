@@ -44,6 +44,9 @@ export class Line {
   static cyan(text: any): string {
     return `${ansi.style.cyan}${text}${ansi.style.reset}`;
   }
+  static yellow(text: any): string {
+    return `${ansi.style.yellow}${text}${ansi.style.reset}`;
+  }
   static word(text: any): string {
     return ` ${text}`;
   }

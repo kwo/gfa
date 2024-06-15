@@ -10,12 +10,61 @@ const lines: Lines = new Lines();
 const process = async (line: Line, dir: string) => {
   line.text = Line.cyan(dir);
 
+  // check if git repo
+  line.mark(Line.word(Line.green('checking git...')));
+  try {
+    const dirents = await fs.readdir(dir, { withFileTypes: true });
+    const isGit = dirents
+      .filter(d => d.isDirectory())
+      .map(d => d.name)
+      .includes('.git');
+    line.clear();
+    if (!isGit) {
+      line.append(Line.word(Line.yellow('no git')));
+      return;
+    }
+  } catch (x) {
+    line.append(Line.word(Line.red(x)));
+    return;
+  }
+
   // branch
   line.mark(Line.word(Line.green('loading branch...')));
   try {
     const { stdout } = await execPromise('git branch --show-current', { cwd: dir });
     const branch = stdout.trim();
     line.clear(Line.word(branch));
+  } catch (x) {
+    line.append(Line.word(Line.red(x)));
+    return;
+  }
+
+  // dirty
+  let dirty = false;
+  line.mark(Line.word(Line.green('getting status...')));
+  try {
+    const { stdout } = await execPromise('git status --porcelain', { cwd: dir });
+    if (stdout.trim().length === 0) {
+      line.clear(Line.word('clean'));
+    } else {
+      line.clear(Line.word('dirty'));
+      dirty = true;
+    }
+  } catch (x) {
+    line.append(Line.word(Line.red(x)));
+    return;
+  }
+
+  // has remote
+  line.mark(Line.word(Line.green('checking remotes...')));
+  try {
+    const { stdout } = await execPromise('git remote', { cwd: dir });
+    if (stdout.trim().length === 0) {
+      line.clear(Line.word(Line.yellow('no remotes')));
+      return;
+    } else {
+      line.clear();
+    }
   } catch (x) {
     line.append(Line.word(Line.red(x)));
     return;
@@ -31,18 +80,7 @@ const process = async (line: Line, dir: string) => {
     return;
   }
 
-  // clean
-  line.mark(Line.word(Line.green('getting status...')));
-  try {
-    const { stdout } = await execPromise('git status --porcelain', { cwd: dir });
-    if (stdout.trim().length === 0) {
-      line.clear(Line.word('clean'));
-    } else {
-      line.clear(Line.word('dirty'));
-      return;
-    }
-  } catch (x) {
-    line.append(Line.word(Line.red(x)));
+  if (dirty) {
     return;
   }
 
