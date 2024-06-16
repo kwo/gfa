@@ -80,7 +80,33 @@ const process = async (line: Line, dir: string) => {
     return;
   }
 
-  if (dirty) {
+  // remote status
+  let needPull = false;
+  line.mark(Line.word(Line.green('remote status...')));
+  try {
+    const { stdout } = await execPromise('git --no-pager branch -vv', { cwd: dir });
+    const branchStatus = stdout.split('\n').map(l => l.trim());
+    let branch: string = '',
+      status: string = '';
+    for (const bs of branchStatus) {
+      if (bs.startsWith('*')) {
+        const match = bs.match(/\[\s*([^:]+)(:\s(.+)\s*)?\]/);
+        if (!match) {
+          line.clear(Line.word(Line.yellow('no remote branch')));
+          return;
+        }
+        [, branch, , status] = match;
+      }
+    }
+    status = status ?? 'up-to-date';
+    needPull = status.includes('behind');
+    line.clear(Line.word(status));
+  } catch (x) {
+    line.append(Line.word(Line.red(x)));
+    return;
+  }
+
+  if (dirty || !needPull) {
     return;
   }
 

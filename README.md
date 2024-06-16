@@ -26,8 +26,6 @@ To create the single javascript file: `bun run build`. The file will be localed 
 
 ## TODO
 
-- skip pull, clean if fetch reveals no changes
-- git pull no tracking branch error
-- rwrite as pure javascript, no typescript, no bun
+- issue where screen is shorter than lines
 - eslint
 - tests
