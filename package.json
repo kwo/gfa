@@ -9,6 +9,7 @@
     "test": "bun run ./test.ts",
     "clean": "rm -rf ./build && rm -f ./gfa",
     "bundle": "bun build ./index.ts --outdir ./build --target node --minify",
+    "dist": "bun run build && cp gfa $HOME/bin/",
     "build": "bun run bundle && bun run gfa-shebang && bun run gfa-executable",
     "gfa-shebang": "bun -e \"const fs = require('fs'); fs.writeFileSync('./gfa', fs.readFileSync('./prolog.txt', 'utf-8') + fs.readFileSync('./build/index.js', 'utf-8'));\"",
     "gfa-executable": "bun -e \"const fs = require('fs'); fs.chmodSync('./gfa', 0o755);\""
