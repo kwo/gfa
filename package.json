@@ -15,7 +15,6 @@
     "gfa-executable": "bun -e \"const fs = require('fs'); fs.chmodSync('./gfa', 0o755);\""
   },
   "devDependencies": {
-    "@types/ansi-escape-sequences": "^4.0.4",
     "@types/bun": "latest",
     "prettier": "3.3.2"
   },
@@ -23,6 +22,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "ansi-escape-sequences": "^6.2.2"
+    "ansi-escapes": "^7.0.0",
+    "ansi-styles": "^6.2.1"
   }
 }

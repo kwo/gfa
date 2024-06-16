@@ -1,4 +1,5 @@
-import ansi from 'ansi-escape-sequences';
+import ansi from 'ansi-escapes';
+import styles from 'ansi-styles';
 
 export class Lines {
   private lines: Line[];
@@ -11,11 +12,11 @@ export class Lines {
 
   update() {
     if (this.updatedOnce) {
-      console.log(ansi.cursor.previousLine(this.lines.length + 1));
+      console.log(ansi.cursorUp(this.lines.length + 1));
     }
     this.updatedOnce = true;
     for (const line of this.lines) {
-      console.log(`${ansi.erase.inLine(0)}${line.text}`);
+      console.log(`${ansi.eraseLine}${line.text}`);
     }
   }
 
@@ -36,16 +37,16 @@ export class Lines {
 
 export class Line {
   static red(text: any): string {
-    return `${ansi.style.red}${text}${ansi.style.reset}`;
+    return `${styles.red.open}${text}${styles.red.close}`;
   }
   static green(text: any): string {
-    return `${ansi.style.green}${text}${ansi.style.reset}`;
+    return `${styles.green.open}${text}${styles.green.close}`;
   }
   static cyan(text: any): string {
-    return `${ansi.style.cyan}${text}${ansi.style.reset}`;
+    return `${styles.cyanBright.open}${text}${styles.cyanBright.close}`;
   }
   static yellow(text: any): string {
-    return `${ansi.style.yellow}${text}${ansi.style.reset}`;
+    return `${styles.yellow.open}${text}${styles.yellow.close}`;
   }
   static word(text: any): string {
     return ` ${text}`;
