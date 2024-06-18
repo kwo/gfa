@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 const execPromise = promisify(exec);
 
-import { Line, Lines } from './lines';
+import { Line, Lines } from './lines.ts';
 
 const lines: Lines = new Lines();
 

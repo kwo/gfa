@@ -1,4 +1,4 @@
-import { Line } from './lines';
+import { Line } from './lines.ts';
 
 const xyz = () => {
   // const text = '* main 087a490 [origin/main: ahead 1] check that origin';
