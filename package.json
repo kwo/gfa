@@ -7,11 +7,9 @@
     "lint:style": "prettier ./src --check",
     "lint:fix": "prettier ./src --write",
     "lint:ts": "tsc -p tsconfig.json",
-    "dev": "ts-node ./src/gfa",
-    "test": "ts-node ./src/test",
-    "clean": "rm -rf ./build && rm -rf ./dist",
+    "clean": "rimraf ./build ./dist",
     "dist": "run-s lint build deploy",
-    "deploy": "cp ./dist/gfa $HOME/bin/",
+    "deploy": "node -e \"const fs = require('fs'); const os = require('os'); fs.writeFileSync(os.homedir() + '/bin/gfa', fs.readFileSync('./dist/gfa', 'utf-8'));\"",
     "build": "run-s clean build:init build:bundle build:shebang build:executable",
     "build:init": "node -e \"const fs = require('fs'); fs.mkdirSync('dist'); fs.mkdirSync('build');\"",
     "build:bundle": "esbuild ./src/gfa.ts --bundle --platform=node --target=node20.9 --minify --tree-shaking=true --outdir=./build",
@@ -23,7 +21,7 @@
     "esbuild": "0.21.5",
     "npm-run-all": "4.1.5",
     "prettier": "3.3.2",
-    "ts-node": "10.9.2"
+    "rimraf": "5.0.7"
   },
   "peerDependencies": {
     "typescript": "5.4.5"
