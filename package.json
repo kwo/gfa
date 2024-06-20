@@ -3,10 +3,11 @@
   "module": "src/gfa.ts",
   "type": "module",
   "scripts": {
-    "lint": "run-s lint:style lint:ts",
-    "lint:style": "prettier ./src --check",
-    "lint:fix": "prettier ./src --write",
-    "lint:ts": "tsc -p tsconfig.json",
+    "lint": "run-s lint:format lint:ts lint:tsc",
+    "lint:ts": "eslint .",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "lint:format": "prettier ./src --check",
+    "lint:formatfix": "prettier ./src --write",
     "clean": "rimraf ./build ./dist",
     "dist": "run-s lint build deploy",
     "deploy": "node -e \"const fs = require('fs'); const os = require('os'); fs.writeFileSync(os.homedir() + '/bin/gfa', fs.readFileSync('./dist/gfa', 'utf-8'));\"",
@@ -17,14 +18,18 @@
     "build:executable": "node -e \"const fs = require('fs'); fs.chmodSync('./dist/gfa', 0o755);\""
   },
   "devDependencies": {
-    "@types/node": "20.14.5",
+    "@eslint/js": "8.56.0",
+    "@types/node": "20.14.6",
+    "@typescript-eslint/eslint-plugin": "7.13.1",
+    "@typescript-eslint/parser": "7.13.1",
     "esbuild": "0.21.5",
+    "eslint": "8.56.0",
+    "eslint-config-prettier": "9.1.0",
     "npm-run-all": "4.1.5",
     "prettier": "3.3.2",
-    "rimraf": "5.0.7"
-  },
-  "peerDependencies": {
-    "typescript": "5.4.5"
+    "rimraf": "5.0.7",
+    "typescript": "5.4.5",
+    "typescript-eslint": "7.13.1"
   },
   "dependencies": {
     "ansi-escapes": "7.0.0",

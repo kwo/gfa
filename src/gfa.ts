@@ -86,19 +86,18 @@ const process = async (line: Line, dir: string) => {
   try {
     const { stdout } = await execPromise('git --no-pager branch -vv', { cwd: dir });
     const branchStatus = stdout.split('\n').map(l => l.trim());
-    let branch: string = '',
-      status: string = '';
-    for (const bs of branchStatus) {
-      if (bs.startsWith('*')) {
-        const match = bs.match(/\[\s*([^:]+)(:\s(.+)\s*)?\]/);
+    let status = '';
+    for (const branch of branchStatus) {
+      if (branch.startsWith('*')) {
+        const match = branch.match(/\[\s*([^:]+)(:\s(.+)\s*)?\]/);
         if (!match) {
           line.clear(Line.word(Line.yellow('no remote branch')));
           return;
         }
-        [, branch, , status] = match;
+        [, , , status] = match; // , branch, , status
       }
     }
-    status = status ?? 'up-to-date';
+    status = status || 'up-to-date';
     needPull = status.includes('behind');
     line.clear(Line.word(status));
   } catch (x) {
@@ -144,4 +143,4 @@ const main = async (dir: string) => {
 
 main('.')
   .then(() => (lines.last.text = 'done'))
-  .catch(err => (lines.last.text = Line.red(err)));
+  .catch((err: unknown) => (lines.last.text = Line.red(err)));

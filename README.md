@@ -19,13 +19,18 @@ gfa
 
 To create the single javascript file: `bun run build`. The file will be localed at `./gfa`.
 
-## References
+## Reference
 
 - [original gfa](https://gist.github.com/kwo/bbd251ab1d3392ad95dc889948177a78)
 - [mjs without extension](https://2ality.com/2022/07/nodejs-esm-shell-scripts.html#unix%3A-arbitrary-filename-extension-via-a-shell-prolog)
 
+### ESLint
+* npm install eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin --save-dev
+* https://khalilstemmler.com/blogs/typescript/eslint-for-typescript/
+* https://blog.logrocket.com/linting-typescript-eslint-prettier/#what-eslint
+* https://eslint.org/docs/v8.x/use/configure/
+https://eslint.org/docs/v8.x/rules
 ## TODO
 
 - issue where screen is shorter than lines
-- eslint
 - tests

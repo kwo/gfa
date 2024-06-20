@@ -1,41 +1,8 @@
 import ansi from 'ansi-escapes';
 import styles from 'ansi-styles';
 
-export class Lines {
-  private lines: Line[];
-  private updatedOnce: boolean;
-
-  constructor() {
-    this.lines = [];
-    this.updatedOnce = false;
-  }
-
-  update() {
-    if (this.updatedOnce) {
-      console.log(ansi.cursorUp(this.lines.length + 1));
-    }
-    this.updatedOnce = true;
-    for (const line of this.lines) {
-      console.log(`${ansi.eraseLine}${line.text}`);
-    }
-  }
-
-  add(text?: string): Line {
-    const line = new Line(text, () => this.update());
-    this.lines.push(line);
-    return line;
-  }
-
-  get last(): Line {
-    return this.line(this.lines.length - 1);
-  }
-
-  line(index: number): Line {
-    return this.lines[index];
-  }
-}
-
 export class Line {
+  /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
   static red(text: any): string {
     return `${styles.red.open}${text}${styles.red.close}`;
   }
@@ -51,6 +18,7 @@ export class Line {
   static word(text: any): string {
     return ` ${text}`;
   }
+  /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
 
   private segments: string[];
   private marker: number;
@@ -101,5 +69,40 @@ export class Line {
     if (this.notifier) {
       this.notifier();
     }
+  }
+}
+export class Lines {
+  private lines: Line[];
+  private updatedOnce: boolean;
+
+  constructor() {
+    this.lines = [];
+    this.updatedOnce = false;
+  }
+
+  update() {
+    if (this.updatedOnce) {
+      console.log(ansi.cursorUp(this.lines.length + 1));
+    }
+    this.updatedOnce = true;
+    for (const line of this.lines) {
+      console.log(`${ansi.eraseLine}${line.text}`);
+    }
+  }
+
+  add(text?: string): Line {
+    const line = new Line(text, () => {
+      this.update();
+    });
+    this.lines.push(line);
+    return line;
+  }
+
+  get last(): Line {
+    return this.line(this.lines.length - 1);
+  }
+
+  line(index: number): Line {
+    return this.lines[index];
   }
 }

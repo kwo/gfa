@@ -1,45 +1,3 @@
-import { Line } from './lines';
-
-const xyz = () => {
-  // const text = '* main 087a490 [origin/main: ahead 1] check that origin';
-  // const text = '* main 7ece297 change project to cli-only';
-  const text =
-    '* main 087a490 [origin/main: ahead 1] check that origin is available before fetching, pulling';
-
-  //  * main   9378548 [origin/main] update readme
-  //  * main 7ece297 change project to cli-only
-  // * main 087a490 [origin/main: ahead 1] check that origin is available before fetching, pulling
-
-  if (!text.startsWith('*')) {
-    console.log('not the current branch, ignoring.');
-    return;
-  }
-
-  // look for brackets
-  // if found, get name of remote branch
-  const posBracket1 = text.indexOf('[');
-  if (posBracket1 === -1) {
-    console.log('no remote branch');
-    return;
-  }
-
-  const posBracket2 = text.indexOf(']');
-  if (posBracket2 === -1) {
-    console.log('parse error - no closing bracket');
-    return;
-  }
-
-  const remoteInfo = text.substring(posBracket1 + 1, posBracket2);
-  const remoteParts = remoteInfo.split(': ', 2);
-  const remoteBranch = remoteParts[0];
-  console.log(`*${remoteBranch}*`);
-  if (remoteParts.length !== 2) {
-    return;
-  }
-  const remoteStatus = remoteParts[1];
-  console.log(`*${remoteStatus}*`);
-};
-
 interface RemoteBranchStatus {
   branch: string;
   status: string;
@@ -74,39 +32,6 @@ const xyz0 = () => {
   for (const text of texts) {
     console.log(xyz2(text));
   }
-};
-
-const foo = () => {
-  const line = new Line();
-  line.append('hello');
-  console.log(`line: *${line.text}*`);
-
-  line.mark();
-
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-
-  line.clear();
-  console.log(`line: *${line.text}*`);
-
-  line.append(Line.word('world'));
-  console.log(`line: *${line.text}*`);
-
-  line.mark();
-
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-  line.append('.');
-  console.log(`line: *${line.text}*`);
-
-  line.clear();
-  console.log(`line: *${line.text}*`);
 };
 
 xyz0();
