@@ -3,19 +3,21 @@
   "module": "src/gfa.ts",
   "type": "module",
   "scripts": {
-    "lint": "run-s lint:format lint:ts lint:tsc",
-    "lint:ts": "eslint .",
-    "lint:tsc": "tsc -p tsconfig.json",
-    "lint:format": "prettier ./src --check",
-    "lint:formatfix": "prettier ./src --write",
     "clean": "rimraf ./build ./dist",
-    "dist": "run-s lint build deploy",
-    "deploy": "node -e \"const fs = require('fs'); const os = require('os'); fs.writeFileSync(os.homedir() + '/bin/gfa', fs.readFileSync('./dist/gfa', 'utf-8'));\"",
+    "dev": "tsx src/gfa.ts",
+    "test": "tsx src/test.ts",
     "build": "run-s clean build:init build:bundle build:shebang build:executable",
     "build:init": "node -e \"const fs = require('fs'); fs.mkdirSync('dist'); fs.mkdirSync('build');\"",
     "build:bundle": "esbuild ./src/gfa.ts --bundle --platform=node --target=node20.9 --minify --tree-shaking=true --outdir=./build",
     "build:shebang": "node -e \"const fs = require('fs'); fs.writeFileSync('./dist/gfa', fs.readFileSync('./src/prolog.txt', 'utf-8') + fs.readFileSync('./build/gfa.js', 'utf-8'));\"",
-    "build:executable": "node -e \"const fs = require('fs'); fs.chmodSync('./dist/gfa', 0o755);\""
+    "build:executable": "node -e \"const fs = require('fs'); fs.chmodSync('./dist/gfa', 0o755);\"",
+    "deploy": "run-s lint build deploy:copy",
+    "deploy:copy": "node -e \"const fs = require('fs'); const os = require('os'); fs.writeFileSync(os.homedir() + '/bin/gfa', fs.readFileSync('./dist/gfa', 'utf-8'));\"",
+    "lint": "run-s lint:format lint:ts lint:tsc",
+    "lint:ts": "eslint .",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "lint:format": "prettier ./src --check",
+    "lint:formatfix": "prettier ./src --write"
   },
   "devDependencies": {
     "@eslint/js": "8.56.0",
@@ -28,6 +30,7 @@
     "npm-run-all": "4.1.5",
     "prettier": "3.3.2",
     "rimraf": "5.0.7",
+    "tsx": "4.15.7",
     "typescript": "5.4.5",
     "typescript-eslint": "7.13.1"
   },
