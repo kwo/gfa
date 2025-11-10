@@ -99,7 +99,7 @@ const process = async (line: Line, dir: string) => {
     }
     status = status || 'up-to-date';
     needPull = status.includes('behind');
-    line.clear(Line.field(status, 10));
+    line.clear(Line.field(status, 11));
   } catch (x) {
     line.append(Line.word(Line.red(x)));
     return;
