@@ -89,7 +89,7 @@ const process = async (line: Line, dir: string) => {
     let status = '';
     for (const branch of branchStatus) {
       if (branch.startsWith('*')) {
-        const match = branch.match(/\[\s*([^:]+)(:\s(.+)\s*)?\]/);
+        const match = /\[\s*([^:]+)(:\s(.+)\s*)?\]/.exec(branch);
         if (!match) {
           line.clear(Line.word(Line.yellow('no remote branch')));
           return;

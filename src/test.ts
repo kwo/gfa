@@ -9,7 +9,7 @@ const xyz2 = (text: string): RemoteBranchStatus | null => {
     return null;
   }
 
-  const match = text.match(/\[\s*([^:]+)(:\s(.+)\s*)?\]/);
+  const match = /\[\s*([^:]+)(:\s(.+)\s*)?\]/.exec(text);
   if (!match) {
     // console.log('no remote branch');
     return null;
