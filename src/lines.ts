@@ -18,6 +18,34 @@ export class Line {
   static word(text: any): string {
     return ` ${text}`;
   }
+
+  /**
+   * Format text as a fixed-width field with padding
+   * @param text - The text to format
+   * @param width - The desired width of the field
+   * @param align - Alignment: 'left' or 'right' (default: 'left')
+   * @returns Padded string with exact width (accounting for ANSI color codes)
+   */
+  static field(text: any, width: number, align: 'left' | 'right' = 'left'): string {
+    const str = String(text);
+    const visibleLength = Line.stripAnsi(str).length;
+    const padding = Math.max(0, width - visibleLength);
+
+    if (align === 'right') {
+      return ' '.repeat(padding) + str;
+    }
+    return str + ' '.repeat(padding);
+  }
+
+  /**
+   * Strip ANSI escape codes from a string to get its visible length
+   * @param text - String that may contain ANSI codes
+   * @returns String with ANSI codes removed
+   */
+  static stripAnsi(text: string): string {
+    // eslint-disable-next-line no-control-regex
+    return text.replace(/\u001b\[\d+m/g, '');
+  }
   /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
 
   private segments: string[];

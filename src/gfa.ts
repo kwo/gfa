@@ -8,7 +8,7 @@ import { Line, Lines } from './lines';
 const lines: Lines = new Lines();
 
 const process = async (line: Line, dir: string) => {
-  line.text = Line.cyan(dir);
+  line.text = Line.field(Line.cyan(dir), 30);
 
   // check if git repo
   line.mark(Line.word(Line.green('checking git...')));
@@ -33,7 +33,7 @@ const process = async (line: Line, dir: string) => {
   try {
     const { stdout } = await execPromise('git branch --show-current', { cwd: dir });
     const branch = stdout.trim();
-    line.clear(Line.word(branch));
+    line.clear(Line.field(branch, 10));
   } catch (x) {
     line.append(Line.word(Line.red(x)));
     return;
@@ -99,7 +99,7 @@ const process = async (line: Line, dir: string) => {
     }
     status = status || 'up-to-date';
     needPull = status.includes('behind');
-    line.clear(Line.word(status));
+    line.clear(Line.field(status, 10));
   } catch (x) {
     line.append(Line.word(Line.red(x)));
     return;
