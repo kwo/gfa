@@ -27,14 +27,12 @@ const Table = ({ data }: TableProps) => {
   }
 
   // Calculate column widths
-  const columns: (keyof RepoState)[] = ['directory', 'branch', 'status', 'remote', 'action'];
+  type ColumnName = 'directory' | 'branch' | 'status' | 'remote' | 'action';
+  const columns: ColumnName[] = ['directory', 'branch', 'status', 'remote', 'action'];
 
-  const widths: Record<string, number> = {};
+  const widths = {} as Record<ColumnName, number>;
   columns.forEach(col => {
-    widths[String(col)] = Math.max(
-      String(col).length,
-      ...data.map(row => String(row[col] ?? '').length)
-    );
+    widths[col] = Math.max(col.length, ...data.map(row => String(row[col] ?? '').length));
   });
 
   // Helper to pad text
@@ -230,7 +228,7 @@ const processRepo = async (
           return;
         }
 
-        [, , , status] = match;
+        status = match[3] ?? '';
       }
     }
 
@@ -298,7 +296,10 @@ const App = () => {
             processRepo(dir, update => {
               setRepos(prev => {
                 const newRepos = [...prev];
-                newRepos[index] = { ...newRepos[index], ...update };
+                const existing = newRepos[index];
+                if (existing) {
+                  newRepos[index] = { ...existing, ...update };
+                }
                 return newRepos;
               });
             })
