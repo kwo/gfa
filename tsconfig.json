@@ -1,32 +1,23 @@
 {
+  "include": [
+    "src/*.ts",
+    "src/*.tsx"
+  ],
   "compilerOptions": {
-    "baseUrl": "./",
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "module": "es2022",
-    "moduleResolution": "bundler",
-    "outDir": "build",
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "target": "es2023",
-    "types": [
-      "node",
-      "react"
-    ],
+    "jsx": "react-jsx",
     "lib": [
       "DOM",
       "DOM.Iterable",
       "ES2023"
     ],
-    "jsx": "react-jsx",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "src/*.ts",
-    "src/*.tsx"
-  ]
+    "target": "es2023"
+  }
 }

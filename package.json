@@ -6,7 +6,7 @@
   },
   "type": "module",
   "scripts": {
-    "clean": "rimraf ./build ./dist",
+    "clean": "rimraf ./dist",
     "dev": "tsx src/gfa.tsx",
     "compile": "bun build --production --target=node --outfile dist/gfa src/gfa.tsx",
     "link": "cat src/prolog.txt dist/gfa > dist/gfa.tmp && mv dist/gfa.tmp dist/gfa && chmod +x dist/gfa",
