@@ -15,8 +15,8 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: {
           impliedStrict: true,
-          jsx: false
-        }
+          jsx: false,
+        },
       },
     },
   },
@@ -29,20 +29,23 @@ export default tseslint.config(
   },
   {
     rules: {
-      "camelcase": ["warn"],
-      "class-methods-use-this": ["warn"],
-      "consistent-return": ["error"],
-      "consistent-this": ["error", "self"],
-      "curly": ["error"],
-      "dot-notation": ["warn"],
-      "no-duplicate-imports": ["warn"],
-      "no-irregular-whitespace": ["error"],
-      "no-shadow": ["error"],
-      "no-use-before-define": ["warn"],
-      "no-var": ["error"],
-      "block-scoped-var": ["error"],
-      "yoda": ["warn", "never"],
-      "@typescript-eslint/no-unused-vars": ["error"]
+      camelcase: ['warn'],
+      'class-methods-use-this': ['warn'],
+      'consistent-return': ['error'],
+      'consistent-this': ['error', 'self'],
+      curly: ['error'],
+      'dot-notation': ['warn'],
+      'no-duplicate-imports': ['warn'],
+      'no-irregular-whitespace': ['error'],
+      'no-shadow': ['error'],
+      'no-use-before-define': ['warn'],
+      'no-var': ['error'],
+      'block-scoped-var': ['error'],
+      yoda: ['warn', 'never'],
+      '@typescript-eslint/no-unused-vars': ['error'],
+      '@typescript-eslint/no-unnecessary-condition': ['off'],
+      '@typescript-eslint/no-unnecessary-boolean-literal-compare': ['off'],
+      '@typescript-eslint/no-unnecessary-type-conversion': ['off'],
     },
-  },
+  }
 );

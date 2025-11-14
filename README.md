@@ -4,7 +4,6 @@ Also known as Git Fetch All, gfa, fetches and pulls all git repositories that ar
 
 ## Dependencies
 
-- Node v20+
 - Git
 
 ## Usage
@@ -15,7 +14,7 @@ gfa
 
 ## Development
 
-`gfa` is a javascript program, written in Typescript, bundled with `esbuild`, targeting `node 20` environments. It is distributed as a single javascript file and can be run it you have node and git installed on your machine.
+`gfa` is a javascript program, written in Typescript, compiled with `bun`, creating a standalone executable. It is distributed as a single native binary and can be run if you have git installed on your machine.
 
 ## Reference
 
