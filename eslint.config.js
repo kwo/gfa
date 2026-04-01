@@ -24,7 +24,7 @@ export default tseslint.config(
     ignores: ['build/**', 'dist/**', 'node_modules/**'],
   },
   {
-    files: ['**/*.js', '**/*.config.{js,ts,mjs,mts}'],
+    files: ['**/*.{js,mjs,cjs}', '**/*.config.{js,ts,mjs,mts}'],
     ...tseslint.configs.disableTypeChecked,
   },
   {

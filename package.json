@@ -8,8 +8,8 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "dev": "tsx src/gfa.tsx",
-    "compile": "bun build --production --target=node --outfile dist/gfa src/gfa.tsx",
-    "link": "cat src/prolog.txt dist/gfa > dist/gfa.tmp && mv dist/gfa.tmp dist/gfa && chmod +x dist/gfa",
+    "compile": "node ./build.mjs",
+    "link": "chmod +x dist/gfa",
     "build": "run-s lint clean compile link",
     "distribute": "cp dist/gfa ~/bin",
     "deploy": "run-s build distribute",
@@ -29,6 +29,7 @@
     "@types/react": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "8.46.3",
     "@typescript-eslint/parser": "8.46.3",
+    "esbuild": "^0.27.4",
     "eslint": "9.39.1",
     "npm-run-all": "4.1.5",
     "prettier": "3.6.2",

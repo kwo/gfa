@@ -96,10 +96,10 @@ The tool displays a table with the following columns:
 
 ### Build System
 
-- **Bun**: Modern JavaScript runtime and bundler used for:
+- **esbuild**: JavaScript/TypeScript bundler used for:
   - Building the production bundle
   - Creating a single executable file
-  - Optimizing for Node.js target environment
+  - Targeting the Node.js runtime
 
 ### Development Tools
 
@@ -110,8 +110,8 @@ The tool displays a table with the following columns:
 
 ### Build Process
 
-1. **Compilation**: Bun bundles the TypeScript source into a single JavaScript file
-2. **Executable Creation**: A shebang (`#!/usr/bin/env node`) is prepended to create a standalone executable
+1. **Compilation**: esbuild bundles the TypeScript source into a single JavaScript file
+2. **Executable Creation**: The bundle includes a shebang (`#!/usr/bin/env node`) and Node ESM compatibility glue so it can run as a CLI
 3. **Distribution**: The resulting binary can be copied to any location in PATH
 
 ### Architecture
@@ -123,7 +123,7 @@ The tool displays a table with the following columns:
 
 ## Development
 
-gfa is a TypeScript application that compiles to a standalone Node.js executable. The build process uses Bun for optimal bundling and performance.
+gfa is a TypeScript application that compiles to a standalone Node.js executable. The build process uses esbuild to produce a bundled CLI for Node.js.
 
 ### Development Commands
 
