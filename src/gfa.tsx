@@ -4,7 +4,10 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 
+declare const __VERSION__: string;
+
 const execPromise = promisify(exec);
+const VERSION = __VERSION__;
 
 // TypeScript Interfaces
 interface RepoState {
@@ -333,6 +336,13 @@ const App = () => {
     </Box>
   );
 };
+
+const args = process.argv.slice(2);
+
+if (args.includes('--version') || args.includes('-v')) {
+  console.log(VERSION);
+  process.exit(0);
+}
 
 // Render the app
 render(<App />, { exitOnCtrlC: false });

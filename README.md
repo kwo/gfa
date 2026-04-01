@@ -61,6 +61,14 @@ gfa uses the following Git commands and defaults:
 gfa
 ```
 
+Show the CLI version:
+
+```bash
+gfa --version
+# or
+gfa -v
+```
+
 ### Interactive Controls
 
 - **q**: Quit the application
