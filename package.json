@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "dev": "tsx src/gfa.tsx",
-    "compile": "node ./build.mjs",
+    "compile": "node ./scripts/build.mjs",
     "link": "chmod +x dist/gfa",
     "build": "run-s lint clean compile link",
     "distribute": "cp dist/gfa ~/bin",
