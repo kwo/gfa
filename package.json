@@ -5,6 +5,9 @@
     "gfa": "./dist/gfa"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "clean": "rimraf ./dist",
     "dev": "tsx src/gfa.tsx",
