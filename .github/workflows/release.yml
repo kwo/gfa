@@ -52,12 +52,17 @@ jobs:
       - name: Build archive
         env:
           VERSION: ${{ github.ref_name }}
-          GFA_VERSION: ${{ github.ref_name }}
+          COMMIT_HASH: ${{ github.sha }}
         run: |
           set -euo pipefail
 
           mkdir -p dist/package
 
+          commit_ts="$(git log -1 --format=%ct)"
+
+          GFA_VERSION="$VERSION" \
+          GFA_COMMIT_HASH="$COMMIT_HASH" \
+          GFA_COMMIT_TS="$commit_ts" \
           npm run compile
 
           chmod +x dist/gfa
