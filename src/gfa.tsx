@@ -216,7 +216,6 @@ const processRepo = async (
   }
 
   // Check remote status
-  let needPull = false;
   try {
     const { stdout } = await execPromise('git --no-pager branch -vv', {
       cwd: dir,
@@ -236,15 +235,15 @@ const processRepo = async (
     }
 
     status = status || 'up-to-date';
-    needPull = status.includes('behind');
+    const needPull = status.includes('behind');
     updateFn({ remote: status });
+
+    // Pull if needed and not dirty
+    if (dirty || !needPull) {
+      return;
+    }
   } catch (x) {
     updateFn({ status: 'error', action: String(x) });
-    return;
-  }
-
-  // Pull if needed and not dirty
-  if (dirty || !needPull) {
     return;
   }
 
