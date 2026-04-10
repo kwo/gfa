@@ -1,6 +1,5 @@
 {
   "name": "gfa",
-  "module": "src/gfa.tsx",
   "bin": {
     "gfa": "./dist/gfa"
   },
