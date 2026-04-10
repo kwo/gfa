@@ -3,8 +3,6 @@ set -euo pipefail
 
 repo="kwo/gfa"
 script_name="scripts/homebrew-formula"
-unsupported_message="gfa supports only macOS/Linux on amd64/arm64"
-
 tag=""
 
 usage() {
@@ -61,11 +59,9 @@ if ! release_assets_json="$(gh release view "$tag" --repo "$repo" --json assets,
   die "failed to inspect release $tag with gh; ensure gh is authenticated and the tag exists"
 fi
 
+archive_name="gfa_${tag}.tar.gz"
 expected_assets=(
-  "gfa_${tag}_darwin_amd64.tar.gz"
-  "gfa_${tag}_darwin_arm64.tar.gz"
-  "gfa_${tag}_linux_amd64.tar.gz"
-  "gfa_${tag}_linux_arm64.tar.gz"
+  "$archive_name"
   "SHA256SUMS"
 )
 
@@ -103,27 +99,11 @@ while read -r checksum asset_name; do
   checksums["$asset_name"]="$checksum"
 done < "$tmpdir/SHA256SUMS"
 
-required_formula_assets=(
-  "gfa_${tag}_darwin_amd64.tar.gz"
-  "gfa_${tag}_darwin_arm64.tar.gz"
-  "gfa_${tag}_linux_amd64.tar.gz"
-  "gfa_${tag}_linux_arm64.tar.gz"
-)
-
-for asset_name in "${required_formula_assets[@]}"; do
-  [[ -n "${checksums[$asset_name]:-}" ]] || die "SHA256SUMS from release $tag is missing checksum for $asset_name"
-done
+[[ -n "${checksums[$archive_name]:-}" ]] || die "SHA256SUMS from release $tag is missing checksum for $archive_name"
 
 version="${tag#v}"
-macos_arm_url="${release_asset_urls[gfa_${tag}_darwin_arm64.tar.gz]}"
-macos_amd64_url="${release_asset_urls[gfa_${tag}_darwin_amd64.tar.gz]}"
-linux_arm_url="${release_asset_urls[gfa_${tag}_linux_arm64.tar.gz]}"
-linux_amd64_url="${release_asset_urls[gfa_${tag}_linux_amd64.tar.gz]}"
-
-macos_arm_sha="${checksums[gfa_${tag}_darwin_arm64.tar.gz]}"
-macos_amd64_sha="${checksums[gfa_${tag}_darwin_amd64.tar.gz]}"
-linux_arm_sha="${checksums[gfa_${tag}_linux_arm64.tar.gz]}"
-linux_amd64_sha="${checksums[gfa_${tag}_linux_amd64.tar.gz]}"
+archive_url="${release_asset_urls[$archive_name]}"
+archive_sha="${checksums[$archive_name]}"
 
 cat <<EOF
 # typed: false
@@ -133,45 +113,13 @@ cat <<EOF
 class Gfa < Formula
   desc "Git Fetch All CLI for scanning and updating repos in bulk"
   homepage "https://github.com/kwo/gfa"
+  url "$archive_url"
+  sha256 "$archive_sha"
   version "$version"
   depends_on "node"
 
-  on_macos do
-    if Hardware::CPU.arm?
-      url "$macos_arm_url"
-      sha256 "$macos_arm_sha"
-    elsif Hardware::CPU.intel?
-      url "$macos_amd64_url"
-      sha256 "$macos_amd64_sha"
-    end
-  end
-
-  on_linux do
-    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "$linux_arm_url"
-      sha256 "$linux_arm_sha"
-    elsif Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "$linux_amd64_url"
-      sha256 "$linux_amd64_sha"
-    end
-  end
-
   def install
-    if OS.mac?
-      if Hardware::CPU.arm? || Hardware::CPU.intel?
-        bin.install "gfa"
-      else
-        odie "$unsupported_message"
-      end
-    elsif OS.linux?
-      if (Hardware::CPU.arm? || Hardware::CPU.intel?) && Hardware::CPU.is_64_bit?
-        bin.install "gfa"
-      else
-        odie "$unsupported_message"
-      end
-    else
-      odie "$unsupported_message"
-    end
+    bin.install "gfa"
   end
 end
 EOF

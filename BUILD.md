@@ -13,17 +13,14 @@ git tag v1.2.3
 git push origin v1.2.3
 ```
 
-The release workflow publishes archives with this naming pattern:
+The release workflow publishes these release assets:
 
-- `gfa_v<version>_darwin_amd64.tar.gz`
-- `gfa_v<version>_darwin_arm64.tar.gz`
-- `gfa_v<version>_linux_amd64.tar.gz`
-- `gfa_v<version>_linux_arm64.tar.gz`
+- `gfa_v<version>.tar.gz`
 - `SHA256SUMS`
 
 Archive layout is binary-only:
 
-- macOS/Linux archives extract a single `gfa` executable at the archive root
+- the archive extracts a single `gfa` executable at the archive root
 
 Notes:
 
@@ -52,6 +49,7 @@ The script:
 - uses `gh release list` to select the latest published non-draft, non-prerelease release by default
 - uses `gh release view` to inspect release assets
 - downloads and parses the release `SHA256SUMS`
+- generates a formula that points at the single release archive
 - fails if `gh` is missing, unusable, or the release is missing required assets
 
 ## Update the tap
