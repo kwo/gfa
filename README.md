@@ -61,6 +61,7 @@ gfa uses the following Git commands and defaults:
 - **Merged Branch Deletion**: `--delete-merged-branches` lists local branches merged into `origin/<default-branch>` and deletes them with safe `git branch -d`
   - It never uses force delete (`git branch -D`)
   - The current branch and default branch are excluded
+  - The cleanup result includes how many local branches were not deleted because they are not merged
 
 ## Dependencies
 
@@ -127,6 +128,7 @@ The tool displays a table with the following columns:
 - **STATUS**: Working directory status (clean/dirty/no git/error)
 - **REMOTE**: Remote tracking status (up-to-date/behind/no remote/etc.)
 - **ACTION**: Last performed action (fetched/pulled/error details)
+- **CLEANUP**: Optional column shown only when cleanup flags are specified; reports cleanup results such as package lock restore, default branch switching, deleted branch count, and unmerged branch count
 
 ### Color Coding
 

@@ -19,6 +19,7 @@ interface RepoState {
   status: string;
   remote: string;
   action: string;
+  cleanup: string;
 }
 
 interface CliOptions {
@@ -32,19 +33,26 @@ interface DirtyFile {
   path: string;
 }
 
+type PackageLockRestoreResult = 'restored' | 'unchanged' | 'skipped';
+
 // Custom Table Component
 interface TableProps {
   data: RepoState[];
+  showCleanup: boolean;
 }
 
-const Table = ({ data }: TableProps) => {
+const Table = ({ data, showCleanup }: TableProps) => {
   if (data.length === 0) {
     return null;
   }
 
   // Calculate column widths
-  type ColumnName = 'directory' | 'branch' | 'status' | 'remote' | 'action';
+  type ColumnName = 'directory' | 'branch' | 'status' | 'remote' | 'action' | 'cleanup';
   const columns: ColumnName[] = ['directory', 'branch', 'status', 'remote', 'action'];
+
+  if (showCleanup) {
+    columns.push('cleanup');
+  }
 
   const widths = {} as Record<ColumnName, number>;
   columns.forEach(col => {
@@ -94,20 +102,24 @@ const Table = ({ data }: TableProps) => {
   };
 
   const getActionColor = (action: string): string => {
-    if (
-      action === 'pulled' ||
-      action === 'fetched' ||
-      action.startsWith('restored') ||
-      action.startsWith('switched') ||
-      action.startsWith('deleted') ||
-      action === 'on default' ||
-      action === 'no merged branches'
-    ) {
+    if (action === 'pulled' || action === 'fetched') {
       return 'green';
     }
 
-    if (action.includes('skipped')) {
+    return 'white';
+  };
+
+  const getCleanupColor = (cleanup: string): string => {
+    if (cleanup.includes('error')) {
+      return 'red';
+    }
+
+    if (cleanup.includes('skipped')) {
       return 'yellow';
+    }
+
+    if (cleanup.length > 0 && cleanup !== '...') {
+      return 'green';
     }
 
     return 'white';
@@ -132,6 +144,11 @@ const Table = ({ data }: TableProps) => {
         <Text bold color="cyan">
           {pad('ACTION', widths.action + 2)}
         </Text>
+        {showCleanup && (
+          <Text bold color="cyan">
+            {pad('CLEANUP', widths.cleanup + 2)}
+          </Text>
+        )}
       </Box>
 
       {/* Rows */}
@@ -142,6 +159,9 @@ const Table = ({ data }: TableProps) => {
           <Text color={getStatusColor(row.status)}>{pad(row.status, widths.status + 2)}</Text>
           <Text color={getRemoteColor(row.remote)}>{pad(row.remote, widths.remote + 2)}</Text>
           <Text color={getActionColor(row.action)}>{pad(row.action, widths.action + 2)}</Text>
+          {showCleanup && (
+            <Text color={getCleanupColor(row.cleanup)}>{pad(row.cleanup, widths.cleanup + 2)}</Text>
+          )}
         </Box>
       ))}
     </Box>
@@ -188,15 +208,15 @@ const getDirtyFiles = async (dir: string): Promise<DirtyFile[]> => {
     });
 };
 
-const restorePackageLockIfOnlyDirty = async (dir: string): Promise<boolean> => {
+const restorePackageLockIfOnlyDirty = async (dir: string): Promise<PackageLockRestoreResult> => {
   const dirtyFiles = await getDirtyFiles(dir);
 
   if (dirtyFiles.length === 0) {
-    return false;
+    return 'unchanged';
   }
 
   if (!dirtyFiles.every(file => basename(file.path) === 'package-lock.json')) {
-    return false;
+    return 'skipped';
   }
 
   const trackedPaths = dirtyFiles.filter(file => file.status !== '??').map(file => file.path);
@@ -212,7 +232,7 @@ const restorePackageLockIfOnlyDirty = async (dir: string): Promise<boolean> => {
     await execFilePromise('git', ['clean', '-f', '--', ...untrackedPaths], { cwd: dir });
   }
 
-  return true;
+  return 'restored';
 };
 
 const getDefaultBranch = async (dir: string): Promise<string> => {
@@ -292,25 +312,40 @@ const getCurrentRemoteStatus = async (
 const deleteMergedBranches = async (
   dir: string,
   defaultBranch: string
-): Promise<{ deleted: number; skipped: number }> => {
+): Promise<{ deleted: number; skipped: number; unmerged: number }> => {
   const currentBranch = await getCurrentBranch(dir);
-  const { stdout } = await execFilePromise(
+  const { stdout: allStdout } = await execFilePromise(
+    'git',
+    ['branch', '--format=%(refname:short)'],
+    {
+      cwd: dir,
+    }
+  );
+  const { stdout: mergedStdout } = await execFilePromise(
     'git',
     ['branch', '--format=%(refname:short)', '--merged', `origin/${defaultBranch}`],
     {
       cwd: dir,
     }
   );
-  const branches = String(stdout)
+  const localBranches = String(allStdout)
     .split('\n')
     .map(branch => branch.trim())
     .filter(branch => branch.length > 0)
     .filter(branch => branch !== currentBranch && branch !== defaultBranch);
+  const mergedBranches = new Set(
+    String(mergedStdout)
+      .split('\n')
+      .map(branch => branch.trim())
+      .filter(branch => branch.length > 0)
+  );
+  const branchesToDelete = localBranches.filter(branch => mergedBranches.has(branch));
+  const unmerged = localBranches.length - branchesToDelete.length;
 
   let deleted = 0;
   let skipped = 0;
 
-  for (const branch of branches) {
+  for (const branch of branchesToDelete) {
     try {
       await execFilePromise('git', ['branch', '-d', branch], { cwd: dir });
       deleted += 1;
@@ -319,7 +354,7 @@ const deleteMergedBranches = async (
     }
   }
 
-  return { deleted, skipped };
+  return { deleted, skipped, unmerged };
 };
 
 /**
@@ -330,13 +365,19 @@ const processRepo = async (
   options: CliOptions,
   updateFn: (update: Partial<RepoState>) => void
 ): Promise<void> => {
+  const cleanupMessages: string[] = [];
+  const updateCleanup = (message: string) => {
+    cleanupMessages.push(message);
+    updateFn({ cleanup: cleanupMessages.join('; ') });
+  };
+
   // Check if git repo
   try {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
     const isGit = dirents.some(d => d.isDirectory() && d.name === '.git');
 
     if (!isGit) {
-      updateFn({ status: 'no git', branch: '', remote: '', action: '' });
+      updateFn({ status: 'no git', branch: '', remote: '', action: '', cleanup: '' });
       return;
     }
   } catch (x) {
@@ -355,11 +396,17 @@ const processRepo = async (
   // Optionally restore package-lock.json files when they are the only dirty files.
   if (options.restorePackageLock) {
     try {
-      if (await restorePackageLockIfOnlyDirty(dir)) {
-        updateFn({ action: 'restored package-lock' });
+      const result = await restorePackageLockIfOnlyDirty(dir);
+      if (result === 'restored') {
+        updateCleanup('restored package-lock');
+      } else if (result === 'skipped') {
+        updateCleanup('package-lock skipped');
+      } else {
+        updateCleanup('package-lock unchanged');
       }
     } catch (x) {
-      updateFn({ status: 'error', action: String(x) });
+      updateFn({ status: 'error' });
+      updateCleanup(`error: ${String(x)}`);
       return;
     }
   }
@@ -408,25 +455,28 @@ const processRepo = async (
     try {
       defaultBranch = await getDefaultBranch(dir);
     } catch (x) {
-      updateFn({ status: 'error', action: String(x) });
+      updateFn({ status: 'error' });
+      updateCleanup(`error: ${String(x)}`);
       return;
     }
   }
 
   if (options.switchDefaultBranch) {
     if (dirty) {
-      updateFn({ action: 'dirty; skipped switch' });
+      updateCleanup('dirty; skipped switch');
     } else if (defaultBranch) {
       try {
         const currentBranch = await getCurrentBranch(dir);
         if (currentBranch === defaultBranch) {
-          updateFn({ action: 'on default' });
+          updateCleanup('on default');
         } else {
           await switchToDefaultBranch(dir, defaultBranch);
-          updateFn({ branch: await getCurrentBranch(dir), action: `switched ${defaultBranch}` });
+          updateFn({ branch: await getCurrentBranch(dir) });
+          updateCleanup(`switched ${defaultBranch}`);
         }
       } catch (x) {
-        updateFn({ status: 'error', action: String(x) });
+        updateFn({ status: 'error' });
+        updateCleanup(`error: ${String(x)}`);
         return;
       }
     }
@@ -456,25 +506,28 @@ const processRepo = async (
 
   if (options.deleteMergedBranches) {
     if (dirty) {
-      updateFn({ action: 'dirty; skipped delete' });
+      updateCleanup('dirty; skipped delete');
       return;
     }
 
     try {
       if (!defaultBranch) {
-        updateFn({ status: 'error', action: 'default branch not found' });
+        updateFn({ status: 'error' });
+        updateCleanup('error: default branch not found');
         return;
       }
 
-      const { deleted, skipped } = await deleteMergedBranches(dir, defaultBranch);
+      const { deleted, skipped, unmerged } = await deleteMergedBranches(dir, defaultBranch);
+      const skippedText = skipped > 0 ? `, skipped ${String(skipped)}` : '';
+      const unmergedText = `, unmerged ${String(unmerged)}`;
       if (deleted > 0 || skipped > 0) {
-        const skippedText = skipped > 0 ? `, skipped ${String(skipped)}` : '';
-        updateFn({ action: `deleted ${String(deleted)}${skippedText}` });
+        updateCleanup(`deleted ${String(deleted)}${skippedText}${unmergedText}`);
       } else {
-        updateFn({ action: 'no merged branches' });
+        updateCleanup(`no merged branches${unmergedText}`);
       }
     } catch (x) {
-      updateFn({ status: 'error', action: String(x) });
+      updateFn({ status: 'error' });
+      updateCleanup(`error: ${String(x)}`);
     }
   }
 };
@@ -509,6 +562,12 @@ const App = ({ options }: { options: CliOptions }) => {
           status: '...',
           remote: '...',
           action: '...',
+          cleanup:
+            options.restorePackageLock ||
+            options.switchDefaultBranch ||
+            options.deleteMergedBranches
+              ? '...'
+              : '',
         }));
         setRepos(initialRepos);
 
@@ -551,7 +610,12 @@ const App = ({ options }: { options: CliOptions }) => {
 
   return (
     <Box flexDirection="column">
-      <Table data={repos} />
+      <Table
+        data={repos}
+        showCleanup={
+          options.restorePackageLock || options.switchDefaultBranch || options.deleteMergedBranches
+        }
+      />
       <Box marginTop={1}>
         <Text dimColor>{status}</Text>
       </Box>
