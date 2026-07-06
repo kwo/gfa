@@ -11,7 +11,8 @@ gfa scans the current directory for Git repositories and performs the following 
 3. **Branch Information**: Shows the current branch for each repository
 4. **Remote Tracking**: Displays the relationship with remote branches (up-to-date, behind, etc.)
 5. **Batch Operations**: Automatically fetches from all remotes and pulls when safe to do so
-6. **Visual Feedback**: Presents results in a color-coded table format
+6. **Optional Cleanup**: Can restore package lock changes, switch to the default branch, and delete merged local branches
+7. **Visual Feedback**: Presents results in a color-coded table format
 
 ## How it works
 
@@ -50,6 +51,17 @@ gfa uses the following Git commands and defaults:
   - Local branch is behind the remote branch
   - Uses default `git pull` (typically fast-forward merge)
 
+- **Default Branch Detection**: `--switch-default-branch` and `--delete-merged-branches` detect the default branch from `origin/HEAD`
+  - If needed, gfa runs `git remote set-head origin --auto` and checks `origin/HEAD` again
+
+- **Package Lock Restore**: `--restore-package-lock` restores `package-lock.json` files only when every dirty file is named `package-lock.json`
+  - Tracked package lock files are restored with `git restore --staged --worktree`
+  - Untracked package lock files are removed with `git clean -f`
+
+- **Merged Branch Deletion**: `--delete-merged-branches` lists local branches merged into `origin/<default-branch>` and deletes them with safe `git branch -d`
+  - It never uses force delete (`git branch -D`)
+  - The current branch and default branch are excluded
+
 ## Dependencies
 
 - **Git**: Must be installed and available in PATH
@@ -67,6 +79,37 @@ Show the CLI version:
 gfa --version
 # or
 gfa -v
+```
+
+Optional cleanup flags:
+
+```bash
+# Restore package-lock.json when it is the only dirty file
+gfa --restore-package-lock
+# or
+gfa -R
+
+# Switch each clean repository to its origin default branch
+gfa --switch-default-branch
+# or
+gfa -s
+
+# Delete local branches merged into the origin default branch using git branch -d
+gfa --delete-merged-branches
+# or
+gfa -d
+```
+
+Short aliases can be packed:
+
+```bash
+gfa -Rsd
+```
+
+That is equivalent to:
+
+```bash
+gfa --restore-package-lock --switch-default-branch --delete-merged-branches
 ```
 
 ### Interactive Controls
